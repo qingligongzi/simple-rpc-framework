@@ -39,7 +39,9 @@ public class Server {
         logger.info("创建并启动RpcAccessPoint...");
         try(RpcAccessPoint rpcAccessPoint = ServiceSupport.load(RpcAccessPoint.class);
             Closeable ignored = rpcAccessPoint.startServer()) {
-            NameService nameService = rpcAccessPoint.getNameService(file.toURI());
+            URI redisUri = URI.create("redis://192.168.2.18:6379");
+            NameService nameService = rpcAccessPoint.getNameService(redisUri);
+            // NameService nameService = rpcAccessPoint.getNameService(file.toURI());
             assert nameService != null;
             logger.info("向RpcAccessPoint注册{}服务...", serviceName);
             URI uri = rpcAccessPoint.addServiceProvider(helloService, HelloService.class);

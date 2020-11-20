@@ -19,4 +19,6 @@ package com.github.liyue2008.rpc.hello;
  */
 public interface HelloService {
     String hello(String name);
+
+    Integer calc(Integer a, Integer b);
 }

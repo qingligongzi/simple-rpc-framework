@@ -17,6 +17,11 @@ import com.github.liyue2008.rpc.transport.Transport;
 import com.itranswarp.compiler.JavaStringCompiler;
 
 
+import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,6 +48,31 @@ public class DynamicStubFactory implements StubFactory{
             "    }\n" +
             "}";
 
+    private static final String STUB_CLASS_TEMPLATE =
+            "package com.github.liyue2008.rpc.client.stubs;\n" +
+            "import com.github.liyue2008.rpc.serialize.SerializeSupport;\n" +
+            "\n" +
+            "public class %s extends AbstractStub implements %s {\n" +
+            "%s\n" +
+            "}";
+
+    public static final String STUB_METHOD_TEMPLATE =
+            "    @Override\n" +
+            "    public %s %s(%s) {\n" +
+            "        Class[] parameterTypeClassList = {%s};\n" +
+            "        Object[] parameterTypeObjectList = {%s};\n" +
+            "        return SerializeSupport.parse(\n" +
+            "                invokeRemote(\n" +
+            "                        new RpcRequest(\n" +
+            "                                \"%s\",\n" +
+            "                                \"%s\",\n" +
+            "                                SerializeSupport.serialize(parameterTypeClassList),\n" +
+            "                                SerializeSupport.serialize(parameterTypeObjectList)\n" +
+            "                        )\n" +
+            "                )\n" +
+            "        );\n" +
+            "    }\n";
+
     @Override
     @SuppressWarnings("unchecked")
     public <T> T createStub(Transport transport, Class<T> serviceClass) {
@@ -51,9 +81,37 @@ public class DynamicStubFactory implements StubFactory{
             String stubSimpleName = serviceClass.getSimpleName() + "Stub";
             String classFullName = serviceClass.getName();
             String stubFullName = "com.github.liyue2008.rpc.client.stubs." + stubSimpleName;
-            String methodName = serviceClass.getMethods()[0].getName();
+            // String methodName = serviceClass.getMethods()[0].getName();
 
-            String source = String.format(STUB_SOURCE_TEMPLATE, stubSimpleName, classFullName, methodName, classFullName, methodName);
+            StringBuilder methodStr = new StringBuilder();
+            Method[] methods = serviceClass.getMethods();
+            for (Method method : methods) {
+                String methodReturnName = method.getReturnType().getName();
+                String methodName = method.getName();
+                StringBuilder parameterStr = new StringBuilder();
+                StringBuilder parameterTypeClassStr = new StringBuilder();
+                StringBuilder parameterTypeObjectStr = new StringBuilder();
+
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                for (int i = 0; i < parameterTypes.length; i++) {
+                    Class<?> parameterType = parameterTypes[i];
+                    String parameterTypeName = parameterType.getName();
+                    parameterStr.append(parameterTypeName + " arg" + i + ",");
+                    parameterTypeClassStr.append("arg" + i + ".getClass()" + ",");
+                    parameterTypeObjectStr.append("arg" + i + ",");
+                }
+
+                parameterStr.deleteCharAt(parameterStr.length() - 1);
+                parameterTypeClassStr.deleteCharAt(parameterTypeClassStr.length() - 1);
+                parameterTypeObjectStr.deleteCharAt(parameterTypeObjectStr.length() - 1);
+
+                String methodSource = String.format(STUB_METHOD_TEMPLATE, methodReturnName, methodName, parameterStr.toString(),
+                        parameterTypeClassStr.toString(), parameterTypeObjectStr.toString(),classFullName, methodName);
+                methodStr.append(methodSource);
+            }
+
+            String source = String.format(STUB_CLASS_TEMPLATE, stubSimpleName, classFullName, methodStr.toString());
+            System.out.println("---------\n" + source + "----------\n");
             // 编译源代码
             JavaStringCompiler compiler = new JavaStringCompiler();
             Map<String, byte[]> results = compiler.compile(stubSimpleName + ".java", source);

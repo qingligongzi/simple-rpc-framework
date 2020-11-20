@@ -28,7 +28,8 @@ public class RpcRequestSerializer implements Serializer<RpcRequest> {
     public int size(RpcRequest request) {
         return Integer.BYTES + request.getInterfaceName().getBytes(StandardCharsets.UTF_8).length +
                 Integer.BYTES + request.getMethodName().getBytes(StandardCharsets.UTF_8).length +
-                Integer.BYTES + request.getSerializedArguments().length;
+                Integer.BYTES + request.getParameterTypes().length +
+                Integer.BYTES + request.getParameterValues().length;
     }
 
     @Override
@@ -42,7 +43,11 @@ public class RpcRequestSerializer implements Serializer<RpcRequest> {
         buffer.putInt(tmpBytes.length);
         buffer.put(tmpBytes);
 
-        tmpBytes = request.getSerializedArguments();
+        tmpBytes = request.getParameterTypes();
+        buffer.putInt(tmpBytes.length);
+        buffer.put(tmpBytes);
+
+        tmpBytes = request.getParameterValues();
         buffer.putInt(tmpBytes.length);
         buffer.put(tmpBytes);
     }
@@ -63,9 +68,14 @@ public class RpcRequestSerializer implements Serializer<RpcRequest> {
         len = buffer.getInt();
         tmpBytes = new byte[len];
         buffer.get(tmpBytes);
-        byte [] serializedArgs = tmpBytes;
+        byte [] parameterTypes = tmpBytes;
 
-        return new RpcRequest(interfaceName, methodName, serializedArgs);
+        len = buffer.getInt();
+        tmpBytes = new byte[len];
+        buffer.get(tmpBytes);
+        byte [] parameterValues = tmpBytes;
+
+        return new RpcRequest(interfaceName, methodName, parameterTypes, parameterValues);
     }
 
     @Override

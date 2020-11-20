@@ -19,6 +19,10 @@ package com.github.liyue2008.rpc.serialize.impl;
  */
 class Types {
     final static int TYPE_STRING = 0;
+    final static int TYPE_OBJECT = 1;
+    final static int TYPE_OBJECT_ARRAY = 2;
+    final static int TYPE_CLASS_ARRAY = 3;
+    final static int TYPE_INTEGER = 4;
     final static int TYPE_METADATA = 100;
     final static int TYPE_RPC_REQUEST = 101;
 }

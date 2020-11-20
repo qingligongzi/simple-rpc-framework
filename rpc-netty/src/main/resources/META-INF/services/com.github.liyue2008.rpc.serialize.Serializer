@@ -1,3 +1,7 @@
 com.github.liyue2008.rpc.serialize.impl.MetadataSerializer
 com.github.liyue2008.rpc.serialize.impl.StringSerializer
 com.github.liyue2008.rpc.serialize.impl.RpcRequestSerializer
+com.github.liyue2008.rpc.serialize.impl.ObjectSerializer
+com.github.liyue2008.rpc.serialize.impl.ObjectArraySerializer
+com.github.liyue2008.rpc.serialize.impl.ClassArraySerializer
+com.github.liyue2008.rpc.serialize.impl.IntegerSerializer

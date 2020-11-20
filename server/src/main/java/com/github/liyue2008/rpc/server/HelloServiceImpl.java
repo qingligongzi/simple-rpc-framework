@@ -30,4 +30,9 @@ public class HelloServiceImpl implements HelloService {
         logger.info("HelloServiceImpl返回: {}.", ret);
         return ret;
     }
+
+    @Override
+    public Integer calc(Integer a, Integer b) {
+        return a + b;
+    }
 }

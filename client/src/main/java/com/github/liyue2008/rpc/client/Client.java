@@ -36,7 +36,9 @@ public class Client {
         File file = new File(tmpDirFile, "simple_rpc_name_service.data");
         String name = "Master MQ";
         try(RpcAccessPoint rpcAccessPoint = ServiceSupport.load(RpcAccessPoint.class)) {
-            NameService nameService = rpcAccessPoint.getNameService(file.toURI());
+            URI redisUri = URI.create("redis://192.168.2.18:6379");
+            NameService nameService = rpcAccessPoint.getNameService(redisUri);
+            // NameService nameService = rpcAccessPoint.getNameService(file.toURI());
             assert nameService != null;
             URI uri = nameService.lookupService(serviceName);
             assert uri != null;
@@ -45,6 +47,12 @@ public class Client {
             logger.info("请求服务, name: {}...", name);
             String response = helloService.hello(name);
             logger.info("收到响应: {}.", response);
+
+            Integer num1 = 3;
+            Integer num2 = 4;
+            logger.info("请求服务calc, num1: {}, num2:{}...", num1, num2);
+            Integer response2 = helloService.calc(num1, num2);
+            logger.info("收到响应: {}.", response2);
         }
 
 

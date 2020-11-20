@@ -20,12 +20,16 @@ package com.github.liyue2008.rpc.client.stubs;
 public class RpcRequest {
     private final String interfaceName;
     private final String methodName;
-    private final byte [] serializedArguments;
+    private final byte [] parameterTypes;
+    private final byte [] parameterValues;
+    //private final byte [] serializedArguments;
 
-    public RpcRequest(String interfaceName, String methodName, byte[] serializedArguments) {
+    public RpcRequest(String interfaceName, String methodName, byte[] parameterTypes, byte[] parameterValues) {
         this.interfaceName = interfaceName;
         this.methodName = methodName;
-        this.serializedArguments = serializedArguments;
+        this.parameterTypes = parameterTypes;
+        this.parameterValues = parameterValues;
+        //this.serializedArguments = serializedArguments;
     }
 
     public String getInterfaceName() {
@@ -36,7 +40,15 @@ public class RpcRequest {
         return methodName;
     }
 
-    public byte[] getSerializedArguments() {
-        return serializedArguments;
+    public byte[] getParameterTypes() {
+        return parameterTypes;
     }
+
+    public byte[] getParameterValues() {
+        return parameterValues;
+    }
+
+    /*    public byte[] getSerializedArguments() {
+        return serializedArguments;
+    }*/
 }
